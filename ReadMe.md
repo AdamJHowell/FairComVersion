@@ -1,8 +1,14 @@
-## This script checks the embedded version of a running Windows process.
+# FairCom Version
 
-I use it along with [BGInfo](https://learn.microsoft.com/en-us/sysinternals/downloads/bginfo) to display the running FairCom server version on the desktop.
+## This script checks the version of a running Windows process.
+
+This will be able to check nearly any Windows executable and return the version information stored in the file.  This means it will not be able to report some system processes like `System`, `System Idle Process`, or `Registry`.  It searches process list by the executable name.
+
+I use it along with [BGInfo](https://learn.microsoft.com/en-us/sysinternals/downloads/bginfo) to display on the desktop the running FairCom server version.
 
 ### Steps to automate:
+
+TL/DR: Automate check_version.py using -o to output to a file, then automate BGInfo to read from that file for one of the fields.
 
 1. Run `check_version.py` once to create the output file in a location where it is safe for your account to store data:
    `python check_version.py faircom.exe -t -o C:\temp\faircom_version.txt`  Note the name of the output file.
@@ -25,3 +31,8 @@ I use it along with [BGInfo](https://learn.microsoft.com/en-us/sysinternals/down
 18. For the arguments, use this: `C:\temp\faircom_bginfo.bgi /timer:0 /silent /nolicprompt`, but adjusted for the path from step 7.  Click `OK`.
 19. Click `OK` to save the task.
 20. Locate the task in the middle pane, right-click on it and select `Run`.  The desktop should update to show the most recent time checked.
+
+## ToDo:
+
+* Standardize the FairCom server version to FCDB (e.g., Edge v5.1.0.95 would return 13.1.0.95)
+* Linux version
