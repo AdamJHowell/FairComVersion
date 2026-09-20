@@ -9,7 +9,7 @@ I use it along with BGInfo to display the running FairCom server version on the 
 It can be automated with a batch file similar to this:
 
 @echo off
-"C:\\Users\\adam.howell\\AppData\\Roaming\\Python\\Scripts\\uv.exe" run "C:\\Source\\GitHub\\FairComVersion\\.venv\\Scripts\\python.exe" "C:\\Source\\GitHub\\FairComVersion\\check_version.py" faircom.exe -o "C:\\temp\\faircom_version.txt" -t
+"C:\\Users\\adam.howell\\AppData\\Roaming\\Python\\Scripts\\uv.exe" run "C:\\Source\\GitHub\\FairComVersion\\venv\\Scripts\\python.exe" "C:\\Source\\GitHub\\FairComVersion\\check_version.py" faircom.exe -o "C:\\temp\\faircom_version.txt" -t
 "C:\\Util\\BGInfo\\Bginfo64.exe" "C:\\temp\\faircom_bginfo.bgi" /timer:0 /silent /nolicprompt
 
 Then run that batch script in Task Scheduler, set to "Run only when user is logged on" so it updates the displayed desktop.
