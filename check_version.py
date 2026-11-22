@@ -17,10 +17,14 @@ Then run that batch script in Task Scheduler, set to "Run only when user is logg
 
 import argparse
 import datetime
+import logging
 import pathlib
 
 import psutil
 from win32api import GetFileVersionInfo, LOWORD, HIWORD
+
+logger = logging.getLogger( __name__ )
+logger.setLevel( logging.DEBUG )
 
 
 def get_process_exe( process_name: str ) -> pathlib.Path | None:
@@ -51,15 +55,16 @@ def get_windows_file_version( exe_path: pathlib.Path ) -> str:
         return "Executable path not found."
 
     try:
-        print( f"Attempting to read version info from: {exe_path}" )
+        logger.debug( f"Attempting to read version info from: {exe_path}" )
         # Get the embedded version info from the .exe
-        info = GetFileVersionInfo( exe_path.name, "\\" )
-        print( f"Retrieved version info for {exe_path.name}: {info}" )
+        info = GetFileVersionInfo( str( exe_path ), "\\" )
+        logger.debug( f"Retrieved version info for {exe_path.name}: {info}" )
         ms = info['FileVersionMS']
         ls = info['FileVersionLS']
         return f"{HIWORD( ms )}.{LOWORD( ms )}.{HIWORD( ls )}.{LOWORD( ls )}"
-    except Exception as e:
-        return f"Could not read version metadata: {e}"
+    except Exception as exception:
+        logger.exception( f"Could not read version metadata from {exe_path}: {exception}", exception )
+    return "Version info not found."
 
 
 def check_process_version( process_name: str, output_file: pathlib.Path | None = None, add_timestamp: bool = False ) -> None:
@@ -77,12 +82,13 @@ def check_process_version( process_name: str, output_file: pathlib.Path | None =
         status_text = f"Running v{version_output}"
     else:
         status_text = "Not Running"
+        logger.debug( f"Could not find the process: {process_name}" )
 
     # Append the timestamp if requested.
     if add_timestamp:
         now = datetime.datetime.now().strftime( "%H:%M" )
         status_text += f" - {now}"
-    print( f"Status: {status_text}" )
+    logger.debug( f"Status: {status_text}" )
 
     # Write to file if requested.
     if output_file:
@@ -91,9 +97,9 @@ def check_process_version( process_name: str, output_file: pathlib.Path | None =
         try:
             with open( output_file, "w" ) as f:
                 f.write( status_text )
-            print( f"Successfully wrote status to: {output_file}" )
-        except Exception as e:
-            print( f"Failed to write to {output_file}: {e}" )
+            logger.debug( f"Successfully wrote status to: {output_file}" )
+        except Exception as exception:
+            logger.exception( f"Failed to write to {output_file}: {exception}", exception )
 
 
 def check_create_directory( directory: pathlib.Path ) -> bool:
@@ -109,7 +115,7 @@ def check_create_directory( directory: pathlib.Path ) -> bool:
             # The inclusion of exist_ok=True should not be necessary in this case but clarifies this code.
             directory.mkdir( parents = True, exist_ok = True )
     except OSError as os_error:
-        print( f"Error: Could not create the directory '{directory}': {os_error}" )
+        logger.exception( f"Error: Could not create the directory '{directory}': {os_error}", os_error )
         return False
     return directory.is_dir()
 
